@@ -1,0 +1,279 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: white;
+  overflow-x: hidden;
+  background: radial-gradient(circle at top, #1a1a1a, #000000);
+}
+
+/* Arka plan canvas */
+#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+/* Ortalama */
+.container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+/* Başlık */
+h1 {
+  font-size: 42px;
+  color: #ffd700;
+  margin-bottom: 30px;
+  text-shadow: 0 0 20px rgba(255,215,0,0.8);
+}
+
+/* Kartlar */
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  margin: 15px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  width: 340px;
+
+  border: 1px solid rgba(255,215,0,0.35);
+  box-shadow: 0 0 25px rgba(255,215,0,0.15);
+
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 35px rgba(255,215,0,0.25);
+}
+
+/* Input */
+input {
+  width: 92%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffd700;
+  font-size: 14px;
+
+  border: 1px solid rgba(255,215,0,0.3);
+}
+
+input::placeholder {
+  color: rgba(255,215,0,0.6);
+}
+
+/* Buton */
+button {
+  width: 95%;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(45deg, #ffd700, #ffb300);
+  color: black;
+  font-weight: bold;
+  font-size: 14px;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255,215,0,0.7);
+}
+
+/* Liste */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: rgba(0, 0, 0, 0.5);
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,215,0,0.2);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 14px;
+}
+
+/* Teslim edildi tik */
+li span {
+  color: #00ff9c;
+  margin-left: 10px;
+}
+
+/* Küçük buton (teslim et) */
+li button {
+  width: auto;
+  padding: 6px 10px;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.badge {
+  background: linear-gradient(45deg, #ffd700, #ffb300);
+  color: black;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 10px;
+
+  box-shadow: 0 0 10px rgba(255,215,0,0.6);
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.stat {
+  background: rgba(255,255,255,0.05);
+  padding: 15px 25px;
+  border-radius: 15px;
+  border: 1px solid rgba(255,215,0,0.3);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(255,215,0,0.15);
+  width: 120px;
+}
+
+.stat h3 {
+  margin: 0;
+  color: #ffd700;
+  font-size: 24px;
+  text-shadow: 0 0 10px rgba(255,215,0,0.6);
+}
+
+.stat p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+}
+
+/* SELECT – GOLD THEME */
+select {
+  width: 92%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffd700;
+  font-size: 14px;
+
+  border: 1px solid rgba(255,215,0,0.3);
+  cursor: pointer;
+  appearance: none;
+
+  box-shadow: 0 0 10px rgba(255,215,0,0.15);
+  transition: 0.2s;
+}
+
+select:hover {
+  box-shadow: 0 0 15px rgba(255,215,0,0.35);
+}
+
+select:focus {
+  border: 1px solid #ffd700;
+  box-shadow: 0 0 20px rgba(255,215,0,0.6);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); background-color: #ff0000; }
+  100% { transform: scale(1); }
+}
+
+/* Bekleyen araç listesi öğesi için */
+li {
+  transition: all 0.3s ease;
+  /* Mevcut stillerin... */
+}
+
+/* 1. TÜM SİTE GENELİ (ANA ÇUBUK) */
+::-webkit-scrollbar {
+    width: 10px !important; /* Biraz daha kalın olsun, ana çubuk sonuçta */
+    background-color: #1a1a1a !important; /* Arka plan koyu siyah */
+}
+
+/* Kayan parça (Handle) */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #ffd700, #b8860b) !important; /* Altın gradyan */
+    border-radius: 10px !important;
+    border: 2px solid #1a1a1a !important; /* Siyah kenarlıkla belirginleşsin */
+}
+
+/* Üstüne gelince parlama */
+::-webkit-scrollbar-thumb:hover {
+    background: #fff !important; /* Beyazımsı parlama */
+    box-shadow: 0 0 15px #ffd700 !important;
+}
+
+/* Scrollbar yolu */
+::-webkit-scrollbar-track {
+    background: #000 !important;
+    border-left: 1px solid rgba(255, 215, 0, 0.1) !important;
+}
+
+/* 2. FIREFOX İÇİN GENEL AYAR */
+* {
+    scrollbar-width: thin !important;
+    scrollbar-color: #ffd700 #000 !important;
+}
+ 
+/* style.css dosyanın en altına yapıştır */
+
+/* 1. Hem Müşteri Hem Admin Chat Kutusu İçin (ID'leri virgülle ayırdık) */
+#chatMessages::-webkit-scrollbar, 
+#adminChatMessages::-webkit-scrollbar,
+.chat-box::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+#chatMessages::-webkit-scrollbar-track, 
+#adminChatMessages::-webkit-scrollbar-track,
+.chat-box::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-radius: 10px !important;
+}
+
+#chatMessages::-webkit-scrollbar-thumb, 
+#adminChatMessages::-webkit-scrollbar-thumb,
+.chat-box::-webkit-scrollbar-thumb {
+    background: #ffd700 !important; /* ALTIN SARI */
+    border-radius: 10px !important;
+    border: 2px solid #1a1a1a !important;
+}
+
+/* Firefox Desteği */
+#chatMessages, #adminChatMessages, .chat-box {
+    scrollbar-width: thin !important;
+    scrollbar-color: #ffd700 rgba(0, 0, 0, 0.4) !important;
+}

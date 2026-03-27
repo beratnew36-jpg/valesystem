@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Müşteri Paneli | Mahsun Usta</title>
+  <link rel="icon" type="image/png" href="mahsun.png">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .card { width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 215, 0, 0.2); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    input { text-align: center; font-size: 20px; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; padding: 15px; border-radius: 15px; margin-bottom: 20px; transition: 0.3s; width: 100%; box-sizing: border-box; }
+    input:focus { border-color: #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); outline: none;}
+    
+    /* Mesaj kutusu için özel ayar: Küçük harf serbest */
+    #chatInput { 
+        text-transform: none !important; 
+        letter-spacing: normal !important; 
+        text-align: left !important;
+        font-weight: normal !important;
+    }
+
+    .info-box { display: none; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 15px; padding: 15px; margin-bottom: 20px; text-align: left; }
+    .info-box p { margin: 5px 0; display: flex; justify-content: space-between; font-size: 14px; color: rgba(255,255,255,0.7); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
+    .info-box span { color: #ffd700; font-weight: bold; }
+    .main-btn { background: #ffd700; color: #000; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; font-size: 16px; margin-bottom: 10px; transition: 0.3s;}
+    .request-btn { background: transparent; color: #ffd700; border: 2px solid #ffd700; padding: 12px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; margin-bottom: 10px; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;}
+    .request-btn:hover { background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+    
+    /* Vale İletişim Butonu İçin Daha Zarif Stil */
+    .chat-toggle-btn {
+        background: rgba(255, 215, 0, 0.05);
+        color: #ffd700;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        padding: 8px;
+        border-radius: 12px;
+        width: 100%;
+        cursor: pointer;
+        font-size: 13px;
+        transition: 0.3s;
+        margin-bottom: 10px;
+    }
+    .chat-toggle-btn:hover { background: rgba(255, 215, 0, 0.15); }
+
+    .stepper { display: none; position: relative; margin: 40px 0; justify-content: space-between; }
+    .stepper::after { content: ""; position: absolute; top: 15px; left: 5%; width: 90%; height: 2px; background: rgba(255, 215, 0, 0.1); z-index: 0; }
+    .step { z-index: 1; font-size: 10px; color: rgba(255,255,255,0.4); display: flex; flex-direction: column; align-items: center; gap: 10px; width: 30%; } 
+    .step-icon { width: 30px; height: 30px; background: #1a1a1a; border: 2px solid rgba(255, 215, 0, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.5s; }
+    .step.active .step-icon { background: #ffd700; color: black; border-color: white; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+    .step.active span { color: #ffd700; font-weight: bold; }
+    .ready-msg { background: linear-gradient(135deg, #ffd700, #b8860b); color: black; font-size: 16px; padding: 20px; border-radius: 15px; margin-top: 25px; display: none; box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3); font-weight: bold; text-align: center;}
+    
+    .msg-cus { align-self: flex-end; background: #ffd700; color: #000; padding: 6px 12px; border-radius: 12px 12px 0 12px; max-width: 80%; text-align: left; }
+    .msg-adm { align-self: flex-start; background: #333; color: #fff; border: 1px solid #ffd700; padding: 6px 12px; border-radius: 12px 12px 12px 0; max-width: 80%; text-align: left;}
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="container">
+  <div style="margin-bottom: 20px;">
+    <h1>Mahsun Usta</h1>
+    <p style="color: #ffd700; letter-spacing: 3px; font-size: 12px; font-weight: bold;">VALE PREMIUM SERVICE</p>
+  </div>
+  <div class="card">
+    <input id="searchPlate" placeholder="PLAKA GİRİN" maxlength="10" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9 ]/g, '')">
+    <button id="mainBtn" class="main-btn" onclick="handleAction()">ARACIMI SORGULA</button>
+
+    <div id="infoBox" class="info-box">
+        <p>Konum: <span id="infoLoc">-</span></p>
+        <p>Giriş Tarihi: <span id="infoDate">-</span></p>
+        <p>Giriş Saati: <span id="infoTime">-</span></p>
+        <p id="outTimeRow" style="display:none;">Çıkış Saati: <span id="infoOutTime">-</span></p>
+        <p>Toplam Süre: <span id="infoDur">-</span></p>
+    </div>
+
+    <div id="actionArea"></div>
+    
+    <div id="chatArea" style="display:none; margin-top:10px; border-top:1px solid rgba(255,215,0,0.1); padding-top:15px;">
+        <div id="chatMessages" style="height:150px; overflow-y:auto; background:rgba(0,0,0,0.3); border-radius:15px; padding:10px; display:flex; flex-direction:column; gap:8px;"></div>
+        <div style="display:flex; gap:5px; margin-top:10px;">
+            <input id="chatInput" placeholder="Valeye mesaj yaz..." style="margin:0; flex:1; font-size:14px;">
+            <button onclick="sendMsg()" style="width:auto; padding:0 15px; background:#ffd700; color:black; border-radius:10px;">></button>
+        </div>
+    </div>
+
+    <div id="stepper" class="stepper">
+      <div id="step1" class="step"><div class="step-icon">P</div><span>Parkta</span></div>
+      <div id="step2" class="step"><div class="step-icon">⚡</div><span>Hazırlanıyor</span></div>
+      <div id="step3" class="step"><div class="step-icon">🔑</div><span>Hazır</span></div>
+    </div>
+
+    <div id="readyMsg" class="ready-msg"></div>
+    <p id="statusMsg" style="margin-top: 20px; font-size: 14px; text-align: center;"></p>
+  </div>
+</div>
+
+<script>
+let checkInterval;
+let chatInterval;
+
+function clearDisplay() {
+  if(checkInterval) clearInterval(checkInterval);
+  if(chatInterval) clearInterval(chatInterval);
+  document.getElementById("statusMsg").textContent = "";
+  document.getElementById("infoBox").style.display = "none";
+  document.getElementById("readyMsg").style.display = "none";
+  document.getElementById("stepper").style.display = "none";
+  document.getElementById("outTimeRow").style.display = "none";
+  document.getElementById("actionArea").innerHTML = "";
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById("chatArea").style.display = "none";
+}
+
+async function handleAction() {
+  const plate = document.getElementById("searchPlate").value.trim().toUpperCase();
+  if(!plate) return;
+  clearDisplay();
+  try {
+    const res = await fetch(`http://localhost:3000/vehicles/status/${plate}`);
+    if(!res.ok) { 
+        document.getElementById("statusMsg").textContent = "❌ Araç bulunamadı."; 
+        document.getElementById("statusMsg").style.color = "#ff4444";
+        return; 
+    }
+    startTracking(plate);
+    loadChat(plate);
+    chatInterval = setInterval(() => {
+        if(document.getElementById("chatArea").style.display === "block") loadChat(plate);
+    }, 3000);
+  } catch (err) {
+      document.getElementById("statusMsg").textContent = "⚠️ Bağlantı hatası!";
+  }
+}
+
+async function requestVehicle(plate) {
+    try {
+        const res = await fetch(`http://localhost:3000/vehicles/request/${plate}`, { method: "PUT" });
+        if(res.ok) {
+            document.getElementById("statusMsg").textContent = "Vale bilgilendirildi!";
+            document.getElementById("statusMsg").style.color = "#ffd700";
+        }
+    } catch (e) { console.error(e); }
+}
+
+function updateUI(data) {
+    const plate = document.getElementById("searchPlate").value.trim().toUpperCase();
+    document.getElementById("infoBox").style.display = "block";
+    document.getElementById("infoLoc").textContent = data.location || "Bilinmiyor";
+    
+    if(data.checkin_time) {
+        const entry = new Date(data.checkin_time);
+        document.getElementById("infoDate").textContent = entry.toLocaleDateString('tr-TR');
+        document.getElementById("infoTime").textContent = entry.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+        let now = (data.status === 'delivered' && data.checkout_time) ? new Date(data.checkout_time) : new Date();
+        if(data.status === 'delivered') {
+            document.getElementById("outTimeRow").style.display = "flex";
+            document.getElementById("infoOutTime").textContent = now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+        } else {
+            document.getElementById("outTimeRow").style.display = "none";
+        }
+        const diff = Math.floor((now - entry) / 60000);
+        document.getElementById("infoDur").textContent = diff + " dk";
+    }
+
+    const actionArea = document.getElementById("actionArea");
+    actionArea.innerHTML = ""; 
+
+    // 1. ARACIMI HAZIRLAT BUTONU (En Üstte)
+    if(data.status === "parked") {
+        const reqBtn = document.createElement("button");
+        reqBtn.className = "request-btn";
+        reqBtn.textContent = "🚗 ARACIMI HAZIRLAT";
+        reqBtn.onclick = () => requestVehicle(plate);
+        actionArea.appendChild(reqBtn);
+    }
+
+    // 2. VALE İLE İLETİŞİME GEÇ BUTONU (Altında)
+    const chatToggleBtn = document.createElement("button");
+    chatToggleBtn.className = "chat-toggle-btn";
+    chatToggleBtn.innerHTML = "💬 VALEYE MESAJ GÖNDER";
+    chatToggleBtn.onclick = () => {
+        const area = document.getElementById("chatArea");
+        area.style.display = area.style.display === "none" ? "block" : "none";
+        if(area.style.display === "block") {
+            document.getElementById("chatInput").focus();
+            loadChat(plate);
+        }
+    };
+    actionArea.appendChild(chatToggleBtn);
+
+    document.getElementById("stepper").style.display = "flex";
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    if(data.status === "parked" || data.status === "requested") document.getElementById("step1").classList.add("active");
+    if(data.status === "requested") document.getElementById("step2").classList.add("active");
+
+    if(data.status === "delivered") { 
+      document.getElementById("step1").classList.add("active");
+      document.getElementById("step2").classList.add("active");
+      document.getElementById("step3").classList.add("active");
+      const readyMsg = document.getElementById("readyMsg");
+      readyMsg.innerHTML = "🚗💨 ARACINIZ KAPIDA!<br>Anahtarınız valemizdedir.";
+      readyMsg.style.display = "block"; 
+      document.getElementById("statusMsg").textContent = ""; 
+      clearInterval(checkInterval);
+    }
+}
+
+function startTracking(plate) {
+  if(checkInterval) clearInterval(checkInterval);
+  const track = async () => {
+    try {
+        const res = await fetch(`http://localhost:3000/vehicles/status/${plate}`);
+        const data = await res.json();
+        updateUI(data);
+    } catch(e) {}
+  };
+  track();
+  checkInterval = setInterval(track, 3000);
+}
+
+async function sendMsg() {
+  const plate = document.getElementById("searchPlate").value.trim().toUpperCase();
+  const input = document.getElementById("chatInput");
+  const msgText = input.value.trim();
+  if(!msgText) return;
+  await fetch("http://localhost:3000/chat/send", {
+    method: "POST", 
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ plate, sender: "customer", message: msgText })
+  });
+  input.value = ""; 
+  loadChat(plate);
+}
+
+async function loadChat(plate) {
+  try {
+    const res = await fetch(`http://localhost:3000/chat/${plate}`);
+    const msgs = await res.json();
+    const chatBox = document.getElementById("chatMessages");
+    const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 10;
+    
+    chatBox.innerHTML = ""; // Kurşun geçirmez temizlik
+    msgs.forEach(m => {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = m.sender === 'customer' ? 'msg-cus' : 'msg-adm';
+        msgDiv.textContent = m.message; // Kod patlamasını engelleyen kısım
+        chatBox.appendChild(msgDiv);
+    });
+    
+    if(isScrolledToBottom) chatBox.scrollTop = chatBox.scrollHeight;
+  } catch(e) {}
+}
+</script>
+<script src="bg.js"></script>
+</body>
+</html>

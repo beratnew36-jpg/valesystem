@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vale System | Mahsun Usta</title>
+  <link rel="icon" type="image/png" href="mahsun.png">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ... MEVCUT STİLLERİN AYNI ... */
+    .container { max-width: 650px; margin: 0 auto; padding: 20px; }
+    .main-header { text-align: center; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid rgba(255, 215, 0, 0.2); }
+    .main-header h1 { font-size: 36px; margin: 0; letter-spacing: 2px; text-transform: uppercase; color: #fff; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+    .main-header .subtitle { color: #ffd700; font-size: 13px; font-weight: bold; letter-spacing: 7px; margin-top: 8px; opacity: 0.9; }
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    
+    /* YENİ EKLENEN ADMIN CHAT MODAL CSS */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .chat-modal { background: #1a1a1a; width: 90%; max-width: 400px; padding: 20px; border-radius: 15px; border: 1px solid #ffd700; }
+    .chat-box { height: 200px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; margin-bottom: 10px; border-radius: 10px;}
+    .msg-cus { align-self: flex-start; background: #ffd700; color: #000; padding: 6px 12px; border-radius: 12px 12px 12px 0; max-width: 80%; }
+    .msg-adm { align-self: flex-end; background: #333; color: #fff; border: 1px solid #ffd700; padding: 6px 12px; border-radius: 12px 12px 0 12px; max-width: 80%; }
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="container">
+  <div style="margin-bottom: 20px;">
+    <h1 style="margin-bottom: 5px;">Mahsun Usta</h1>
+    <p style="color: #ffd700; letter-spacing: 3px; font-size: 12px; font-weight: bold;">VALE PREMIUM SERVICE</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><h3 id="totalCount">0</h3><p>Toplam Araç</p></div>
+    <div class="stat"><h3 id="parkedCount">0</h3><p>Parkta Olan</p></div>
+    <div class="stat"><h3 id="deliveredCount">0</h3><p>Teslim Edilen</p></div>
+  </div>
+  <div class="card">
+    <h2>Araç Ekle</h2>
+    <input id="plate" placeholder="Plaka" style="text-transform: uppercase;">
+    <select id="location"><option value="">Konum Seç</option></select>
+    <button onclick="addVehicle()">Ekle</button>
+    <pre id="result"></pre>
+  </div>
+  <div class="card">
+    <h2>🅿️ Parktaki Araçlar</h2>
+    <ul id="parkedList"></ul>
+  </div>
+  <div class="card">
+    <h2>✅ Teslim Edilen Araçlar</h2>
+    <ul id="deliveredList"></ul>
+  </div>
+</div>
+
+<div id="adminChatModal" class="modal-overlay">
+  <div class="chat-modal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 id="chatModalTitle" style="color: #ffd700; margin: 0;">Sohbet</h3>
+      <button onclick="closeAdminChat()" style="background: #ffd700; width: 30px; height: 30px; padding: 0; margin: 0; border-radius: 50%; color: white; font-weight: bold;">X</button>
+    </div>
+    <div id="adminChatMessages" class="chat-box"></div>
+    <div style="display: flex; gap: 5px;">
+      <input id="adminChatInput" placeholder="Mesaj yaz..." style="margin: 0; padding: 10px; font-size: 14px; flex: 1;">
+      <button onclick="sendAdminMsg()" style="width: 70px; margin: 0; padding: 0;">GÖNDER</button>
+    </div>
+  </div>
+</div>
+<script>
+window.onload = () => { generateLocations(); getVehicles(); setInterval(getVehicles, 5000); };
+
+function generateLocations(occupied = []) {
+  const select = document.getElementById("location");
+  select.innerHTML = `<option value="">Konum Seç</option>`;
+  for (let i = 1; i <= 40; i++) {
+    const loc = `P${i}`;
+    const option = document.createElement("option");
+    option.value = loc; option.textContent = loc;
+    if (occupied.includes(loc)) { option.disabled = true; option.textContent += " (DOLU)"; }
+    select.appendChild(option);
+  }
+  for (let i = 1; i <= 10; i++) {
+    const loc = `VIP${i}`;
+    const option = document.createElement("option");
+    option.value = loc; option.textContent = loc;
+    if (occupied.includes(loc)) { option.disabled = true; option.textContent += " (DOLU)"; }
+    select.appendChild(option);
+  }
+}
+
+async function addVehicle() {
+  const plate = document.getElementById("plate").value.trim().toUpperCase();
+  const location = document.getElementById("location").value;
+  const result = document.getElementById("result");
+  if (!plate || !location) { result.textContent = "Plaka ve konum seç!"; return; }
+  await fetch("http://localhost:3000/vehicles", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ plate, location })
+  });
+  result.style.color = "#ffd700"; result.textContent = "Araç eklendi!";
+  document.getElementById("plate").value = "";
+  document.getElementById("location").value = "";
+  getVehicles();
+}
+
+async function getVehicles() {
+  const res = await fetch("http://localhost:3000/vehicles");
+  const vehicles = await res.json();
+  
+  let alerts = [];
+  try {
+    const alertRes = await fetch("http://localhost:3000/chat-alerts");
+    const alertData = await alertRes.json();
+    alerts = Array.isArray(alertData) ? alertData : [];
+  } catch(e) { alerts = []; }
+
+  const parkedList = document.getElementById("parkedList");
+  const deliveredList = document.getElementById("deliveredList");
+  parkedList.innerHTML = ""; deliveredList.innerHTML = "";
+  let total = vehicles.length, parked = 0, delivered = 0;
+  
+  const occupiedLocations = [];
+  vehicles.forEach(v => { if (v.status === "parked" || v.status === "requested") { occupiedLocations.push(v.location); } });
+  generateLocations(occupiedLocations);
+
+  vehicles.forEach(v => {
+    const li = document.createElement("li");
+    li.style.display = "flex"; li.style.justifyContent = "space-between";
+    li.style.alignItems = "center"; li.style.padding = "15px";
+
+    // 🔔 BİLDİRİM KONTROLÜ (Sadece mektup ve buton rengi kaldı)
+    const hasMsg = alerts.some(a => a.plate === v.plate);
+
+    const entryDate = new Date(v.checkin_time);
+    const dateStr = entryDate.toLocaleDateString('tr-TR');
+    const timeStr = entryDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    const now = v.status === 'delivered' ? new Date(v.checkout_time) : new Date();
+    const diffMins = Math.floor((now - entryDate) / 60000);
+
+    const infoDiv = document.createElement("div");
+    infoDiv.style.textAlign = "left";
+    // Sadece plakanın yanına mektup ekledik
+    infoDiv.innerHTML = `<div style="font-size: 16px; font-weight: bold; color: #ffd700;">${v.plate}${hasMsg ? ' 📩' : ''}</div><div style="font-size: 12px; color: #ccc;">Konum: ${v.location}</div>`;
+
+    if (v.location.startsWith("VIP")) {
+      li.style.borderLeft = "4px solid #ffd700";
+      li.style.boxShadow = "inset 0 0 10px rgba(255,215,0,0.2)";
+    }
+
+    const timeDiv = document.createElement("div");
+    timeDiv.style.fontSize = "11px"; timeDiv.style.color = "rgba(255,215,0,0.7)"; timeDiv.style.textAlign = "center";
+    timeDiv.innerHTML = `<div>${dateStr} | ${timeStr}</div><div style="font-weight: bold;">⏳ ${diffMins} dk.</div>`;
+
+    const actionDiv = document.createElement("div");
+    actionDiv.style.display = "flex"; actionDiv.style.alignItems = "center";
+
+    if (v.status === "requested") {
+      li.style.backgroundColor = "rgba(255, 0, 0, 0.1)"; li.style.border = "1px solid red";
+      const warning = document.createElement("span");
+      warning.innerHTML = "⚠️"; warning.style.marginRight = "10px"; warning.style.animation = "blink 1s infinite";
+      actionDiv.appendChild(warning);
+    }
+
+    if (v.status === "parked" || v.status === "requested") {
+      parked++;
+      const btn = document.createElement("button");
+      btn.textContent = v.status === "requested" ? "TESLİM ET" : "PARK EDİLDİ";
+      btn.style.width = "70px"; btn.style.margin = "0";
+      btn.onclick = () => checkoutVehicle(v.id);
+      actionDiv.appendChild(btn);
+
+      const chatBtn = document.createElement("button");
+      chatBtn.textContent = "💬";
+      chatBtn.style.margin = "0 0 0 5px";
+      chatBtn.style.padding = "5px 10px";
+      chatBtn.style.width = "auto";
+      chatBtn.style.backgroundColor = hasMsg ? "#ffd700" : "transparent"; // Mesaj varsa sarı yansın
+      chatBtn.style.color = hasMsg ? "#000" : "#ffd700";
+      chatBtn.style.border = "1px solid #ffd700";
+      chatBtn.onclick = () => openAdminChat(v.plate);
+      actionDiv.appendChild(chatBtn);
+
+      li.append(infoDiv, timeDiv, actionDiv);
+      parkedList.appendChild(li);
+    } else {
+      delivered++;
+      const badge = document.createElement("span");
+      badge.textContent = "TESLİM EDİLDİ"; badge.className = "badge";
+      actionDiv.appendChild(badge);
+      li.append(infoDiv, timeDiv, actionDiv);
+      deliveredList.appendChild(li);
+    }
+  });
+  document.getElementById("totalCount").textContent = total;
+  document.getElementById("parkedCount").textContent = parked;
+  document.getElementById("deliveredCount").textContent = delivered;
+}
+
+async function checkoutVehicle(id) {
+  await fetch(`http://localhost:3000/vehicles/${id}/checkout`, { method: "PUT" });
+  getVehicles();
+}
+
+// ==========================================
+// YENİ EKLENEN KISIM: ADMIN CHAT FONKSİYONLARI
+// ==========================================
+let currentChatPlate = "";
+let adminChatInterval;
+
+function openAdminChat(plate) {
+  currentChatPlate = plate;
+  document.getElementById("chatModalTitle").textContent = "Sohbet: " + plate;
+  document.getElementById("adminChatModal").style.display = "flex";
+  loadAdminChat();
+  adminChatInterval = setInterval(loadAdminChat, 3000);
+}
+
+function closeAdminChat() {
+  document.getElementById("adminChatModal").style.display = "none";
+  clearInterval(adminChatInterval);
+  currentChatPlate = "";
+}
+
+async function sendAdminMsg() {
+  const input = document.getElementById("adminChatInput");
+  if(!input.value || !currentChatPlate) return;
+
+  await fetch("http://localhost:3000/chat/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plate: currentChatPlate, sender: "admin", message: input.value })
+  });
+  input.value = "";
+  loadAdminChat();
+}
+
+async function loadAdminChat() {
+  if(!currentChatPlate) return;
+  try {
+    const res = await fetch(`http://localhost:3000/chat/${currentChatPlate}`);
+    const msgs = await res.json();
+    const chatBox = document.getElementById("adminChatMessages");
+    const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 10;
+    
+    chatBox.innerHTML = msgs.map(m => `
+        <div class="${m.sender === 'customer' ? 'msg-cus' : 'msg-adm'}">
+            ${m.message}
+        </div>
+    `).join('');
+    
+    if(isScrolledToBottom) chatBox.scrollTop = chatBox.scrollHeight;
+  } catch(e) {}
+}
+// ==========================================
+</script>
+<script src="bg.js"></script>
+</body>
+</html>
