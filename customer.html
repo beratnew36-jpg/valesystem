@@ -115,7 +115,7 @@ async function handleAction() {
   if(!plate) return;
   clearDisplay();
   try {
-    const res = await fetch(`https://valesystem.onrender.com/vehicles/status/${plate}`);
+    const res = await fetch(`https://mahsun.onrender.com/vehicles/status/${plate}`);
     if(!res.ok) { 
         document.getElementById("statusMsg").textContent = "❌ Araç bulunamadı."; 
         document.getElementById("statusMsg").style.color = "#ff4444";
@@ -133,7 +133,7 @@ async function handleAction() {
 
 async function requestVehicle(plate) {
     try {
-        const res = await fetch(`https://valesystem.onrender.com/vehicles/request/${plate}`, { method: "PUT" });
+        const res = await fetch(`https://mahsun.onrender.com/vehicles/request/${plate}`, { method: "PUT" });
         if(res.ok) {
             document.getElementById("statusMsg").textContent = "Vale bilgilendirildi!";
             document.getElementById("statusMsg").style.color = "#ffd700";
@@ -208,7 +208,7 @@ function startTracking(plate) {
   if(checkInterval) clearInterval(checkInterval);
   const track = async () => {
     try {
-        const res = await fetch(`https://valesystem.onrender.com/vehicles/status/${plate}`);
+        const res = await fetch(`https://mahsun.onrender.com/vehicles/status/${plate}`);
         const data = await res.json();
         updateUI(data);
     } catch(e) {}
@@ -222,7 +222,7 @@ async function sendMsg() {
   const input = document.getElementById("chatInput");
   const msgText = input.value.trim();
   if(!msgText) return;
-  await fetch("https://valesystem.onrender.com/chat/send", {
+  await fetch("https://mahsun.onrender.com/chat/send", {
     method: "POST", 
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({ plate, sender: "customer", message: msgText })
@@ -233,7 +233,7 @@ async function sendMsg() {
 
 async function loadChat(plate) {
   try {
-    const res = await fetch(`https://valesystem.onrender.com/chat/${plate}`);
+    const res = await fetch(`https://mahsun.onrender.com/chat/${plate}`);
     const msgs = await res.json();
     const chatBox = document.getElementById("chatMessages");
     const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 10;
