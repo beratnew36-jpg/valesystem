@@ -91,7 +91,7 @@ async function addVehicle() {
   const location = document.getElementById("location").value;
   const result = document.getElementById("result");
   if (!plate || !location) { result.textContent = "Plaka ve konum seç!"; return; }
-  await fetch("https://mahsun.onrender.com/vehicles", {
+  await fetch("https://mahsunusta.onrender.com/vehicles", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ plate, location })
   });
@@ -102,12 +102,12 @@ async function addVehicle() {
 }
 
 async function getVehicles() {
-  const res = await fetch("https://mahsun.onrender.com/vehicles");
+  const res = await fetch("https://mahsunusta.onrender.com/vehicles");
   const vehicles = await res.json();
   
   let alerts = [];
   try {
-    const alertRes = await fetch("https://mahsun.onrender.com/chat-alerts");
+    const alertRes = await fetch("https://mahsunusta.onrender.com/chat-alerts");
     const alertData = await alertRes.json();
     alerts = Array.isArray(alertData) ? alertData : [];
   } catch(e) { alerts = []; }
@@ -195,7 +195,7 @@ async function getVehicles() {
 }
 
 async function checkoutVehicle(id) {
-  await fetch(`https://mahsun.onrender.com/vehicles/${id}/checkout`, { method: "PUT" });
+  await fetch(`https://mahsunusta.onrender.com/vehicles/${id}/checkout`, { method: "PUT" });
   getVehicles();
 }
 
@@ -223,7 +223,7 @@ async function sendAdminMsg() {
   const input = document.getElementById("adminChatInput");
   if(!input.value || !currentChatPlate) return;
 
-  await fetch("https://mahsun.onrender.com/chat/send", {
+  await fetch("https://mahsunusta.onrender.com/chat/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ plate: currentChatPlate, sender: "admin", message: input.value })
@@ -235,7 +235,7 @@ async function sendAdminMsg() {
 async function loadAdminChat() {
   if(!currentChatPlate) return;
   try {
-    const res = await fetch(`https://mahsun.onrender.com/chat/${currentChatPlate}`);
+    const res = await fetch(`https://mahsunusta.onrender.com/chat/${currentChatPlate}`);
     const msgs = await res.json();
     const chatBox = document.getElementById("adminChatMessages");
     const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 10;
