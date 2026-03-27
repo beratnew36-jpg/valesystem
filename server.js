@@ -7,6 +7,7 @@ const app = express();
 // Render için CORS ayarını en geniş haliyle bırakıyoruz ki hata vermesin
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 // 🔹 Ana test
 app.get("/", (req, res) => {
